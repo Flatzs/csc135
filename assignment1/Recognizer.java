@@ -30,6 +30,7 @@
 //  letter ::= U | X | Y
 //  digit ::= 0 | 1 | 2 | 3 | 4 | 5
 
+// Enter string into program when prompted that will satisfy grammer. Valid examples are listed below.
 // validTests: U=N,; IN+NTU=N,;E; WN+123DU=N,;E; IN+UXY05TU=N,;SU=N,;E; U123,X123,Y123=N+123,N*F,123/-1,; PU01X234Y5=#V,N+N,N*NDU=N,;E;RN+123,F+UX23,;  
 // U=N,;IN+NTU=N,;E;WN+123DU=N,;E;IN+UXY05TU=N,;SU=N,;E;U123,X123,Y123=N+123,N*F,123/-1,;PU01X234Y5=#V,N+N,N*NDU=N,;E;RN+123,F+UX23,; 
 
@@ -55,12 +56,12 @@ public class Recognizer {
 		if (T == token()) {
 			advancePtr();
 		} else {
+			System.out.println("Error: Found '" + token() + "' but expected '" + T + "' at index:[" + index + "]");
 			error();
 		}
 	}
 
 	private void error() {
-		System.out.println("error at position: " + index + " Token: " + token());
 		errorflag = 1;
 		advancePtr();
 	}
@@ -98,6 +99,10 @@ public class Recognizer {
 
 	private Boolean isLstStmnt() {
 		return (token() == 'K' || token() == 'R');
+	}
+
+	private Boolean isAtLastChar() {
+		return (inputString.length() - 1) >= index;
 	}
 
 	// ---------- Grammar
