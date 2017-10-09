@@ -30,86 +30,96 @@
 //  letter ::= U | X | Y
 //  digit ::= 0 | 1 | 2 | 3 | 4 | 5
 
+// validTests: U=N,;  IN+NTU=N,;E; WN+123DU=N,;E; IN+UXY05TU=N,;SU=N,;E; PU01X234Y5=#V,N+N,N*NDU=N,;E;
 
 import java.io.*;
 import java.util.Scanner;
 
-public class Recognizer
-{
-	 static String inputString;
-	 static int index = 0;
-	 static int errorflag = 0;
+public class Recognizer {
+	static String inputString;
+	static int index = 0;
+	static int errorflag = 0;
 
-	 private char token()
-	 { 
-		 return(inputString.charAt(index)); 
-	 }
-	 private void advancePtr()
-	 { 
-		 if (index < (inputString.length()-1)) index++; 
-	 }
-	 private void match(char T)
-	 { 
+	private char token() {
+		return (inputString.charAt(index));
+	}
+
+	private void advancePtr() {
+		if (index < (inputString.length() - 1))
+			index++;
+	}
+
+	private void match(char T) {
 		System.out.println(T + " == " + token());
-		 if (T == token()) {
-			 advancePtr(); 
-		 }
-		 else error(); 
-		 
-	 }
-	 private void error()
-	 {
-		 System.out.println("error at position: " + index + " Token: " + token());
-		 errorflag = 1;
-		 advancePtr();
-	 }
+		if (T == token()) {
+			advancePtr();
+		} else
+			error();
+	}
 
-// ---------- Utilities
-	 private Boolean isLetter(){
+	private void error() {
+		System.out.println("error at position: " + index + " Token: " + token());
+		errorflag = 1;
+		advancePtr();
+	}
+
+	// ---------- Utilities
+	private Boolean isLetter() {
 		return (token() == 'U' || token() == 'X' || token() == 'Y');
-	 }
-	 private Boolean isDigit(){
-		return (token() == '0' || token() == '1' || token() == '2' || token() == '3' || token() == '4' || token() == '5');
-	 }
-	 private Boolean isUnop(){
-		 return (token() == '0' || token() == '&' || token() == '#');
-	 }
-	 private Boolean isBinop(){
-		 return (token() == '+' || token() == '-' || token() == '*' || token() == '/' || token() == '<' || token() == '>' || token() == 'A' || token() == 'O');
-	 }
-	 private Boolean isTerm(){
-		 return (token() == 'N' || token() == 'F' || token() == 'V' || isDigit() || isLetter() || token() == '(');
-	 }
-	 private Boolean isExpr(){
-		 return (isTerm() || isUnop());
-	 }
-	 private Boolean isStmnt(){
-		 return (isLetter() || token() == 'W' || token() == 'I' || token() == 'P');
-	 }
-	 private Boolean isLstStmnt(){
-		return (token() == 'K' || token() == 'R');
-	 }
+	}
 
-// ---------- Grammar
-	private void piece(){
+	private Boolean isDigit() {
+		return (token() == '0' || token() == '1' || token() == '2' || token() == '3' || token() == '4'
+				|| token() == '5');
+	}
+
+	private Boolean isUnop() {
+		return (token() == '-' || token() == '&' || token() == '#');
+	}
+
+	private Boolean isBinop() {
+		return (token() == '+' || token() == '-' || token() == '*' || token() == '/' || token() == '<' || token() == '>'
+				|| token() == 'A' || token() == 'O');
+	}
+
+	private Boolean isTerm() {
+		return (token() == 'N' || token() == 'F' || token() == 'V' || isDigit() || isLetter() || token() == '(');
+	}
+
+	private Boolean isExpr() {
+		return (isTerm() || isUnop());
+	}
+
+	private Boolean isStmnt() {
+		return (isLetter() || token() == 'W' || token() == 'I' || token() == 'P');
+	}
+
+	private Boolean isLstStmnt() {
+		return (token() == 'K' || token() == 'R');
+	}
+
+	// ---------- Grammar
+	private void piece() {
 		System.out.println("piece");
-		while(isStmnt()){
+		while (isStmnt()) {
 			stmnt();
 			match(';');
 		}
-		if(isLstStmnt()){
+		if (isLstStmnt()) {
 			System.out.println("is last statment");
 			lststmnt();
 			match(';');
 		}
 	}
-	private void block(){
+
+	private void block() {
 		System.out.println("block");
 		piece();
 	}
-	private void stmnt(){
+
+	private void stmnt() {
 		System.out.println("stmnt");
-		if(isLetter())
+		if (isLetter())
 			assignst();
 		else if (token() == 'W')
 			whilst();
@@ -117,16 +127,18 @@ public class Recognizer
 			ifst();
 		else if (token() == 'P')
 			forst();
-		else 
+		else
 			error();
 	}
-	private void assignst(){
+
+	private void assignst() {
 		System.out.println("assignst");
 		varlist();
 		match('=');
 		explst();
 	}
-	private void whilst(){
+
+	private void whilst() {
 		System.out.println("whilst");
 		match('W');
 		expr();
@@ -134,19 +146,21 @@ public class Recognizer
 		block();
 		match('E');
 	}
-	private void ifst(){
+
+	private void ifst() {
 		System.out.println("ifst");
 		match('I');
 		expr();
 		match('T');
 		block();
-		if(token() == 'S'){
+		if (token() == 'S') {
 			match('S');
 			block();
 		}
 		match('E');
 	}
-	private void forst(){
+
+	private void forst() {
 		System.out.println("forst");
 		match('P');
 		varname();
@@ -154,7 +168,7 @@ public class Recognizer
 		expr();
 		match(',');
 		expr();
-		if(token() == ','){
+		if (token() == ',') {
 			match(',');
 			expr();
 		}
@@ -162,127 +176,142 @@ public class Recognizer
 		block();
 		match('E');
 	}
-	private void lststmnt(){
+
+	private void lststmnt() {
 		System.out.println("lststmnt");
-		if( token() == 'K' )
+		if (token() == 'K')
 			match('K');
 		else if (token() == 'R')
 			match('R');
-			if(isExpr()) explst();
+		if (isExpr())
+			explst();
 		else
 			error();
 	}
-	private void varlist(){
+
+	private void varlist() {
 		System.out.println("varlist");
-		if(isLetter()){
+		if (isLetter()) {
 			varname();
-			while( token() == ',' ){
+			while (token() == ',') {
 				match(',');
 				varname();
 			}
-		} else 
+		} else
 			error();
 	}
-	private void explst(){
+
+	private void explst() {
 		System.out.println("explst");
 		expr();
 		match(',');
-		if(isExpr())
+		if (isExpr())
 			do {
 				expr();
 				match(',');
 			} while (isExpr());
 	}
-	private void expr(){
+
+	private void expr() {
 		System.out.println("expr");
-		if(isTerm())
+		if (isTerm()) {
 			term();
-		else if (isUnop())
+			if (isBinop()) {
+				binop();
+				expr();
+			}
+		} else if (isUnop()) {
 			unop();
-		else 
+			expr();
+		} else
 			error();
 	}
-	private void term(){
+
+	private void term() {
 		System.out.println("term: " + token());
-		if(token() == 'N' || token() == 'F' || token() == 'V')
+		if (token() == 'N' || token() == 'F' || token() == 'V')
 			match(token());
-		else if(isDigit())
+		else if (isDigit())
 			num();
 		else if (isLetter())
 			varname();
-		else if (token() == '('){
+		else if (token() == '(') {
 			match('(');
 			expr();
 			match(')');
-		}else{
+		} else {
 			System.out.println("error in term");
 			error();
 		}
 	}
-	private void binop(){
+
+	private void binop() {
 		System.out.println("binop");
-		if(isBinop())
+		if (isBinop())
 			match(token());
 		else
 			error();
 	}
-	private void unop(){
+
+	private void unop() {
 		System.out.println("unop");
-		if(isUnop())
+		if (isUnop())
 			match(token());
 		else
 			error();
 	}
-	private void varname(){
+
+	private void varname() {
 		System.out.println("varname");
-		if(isLetter())
-			do{
-				if(isDigit())
+		if (isLetter())
+			do {
+				if (isDigit())
 					digit();
-				else if(isLetter())
+				else if (isLetter())
 					letter();
-			}while(isLetter() || isDigit() );
+			} while (isLetter() || isDigit());
 	}
-	private void num(){
+
+	private void num() {
 		System.out.println("num");
 		do
 			digit();
-		while(isDigit());
+		while (isDigit());
 	}
-	private void letter(){
+
+	private void letter() {
 		System.out.println("letter");
-		if ( isLetter() )
+		if (isLetter())
 			match(token());
 		else
 			error();
 	}
-	private void digit(){
+
+	private void digit() {
 		System.out.println("digit");
-		if( isDigit() )
+		if (isDigit())
 			match(token());
 		else
 			error();
 	}
-// ---------- Start
-	private void start()
-	 {
-		 piece();
-		 if(token() == '$') match('$');
-		 if (errorflag == 0)
-			 System.out.println("legal." + "\n");
-		 else 
+
+	// ---------- Start
+	private void start() {
+		piece();
+		if (token() == '$')
+			match('$');
+		if (errorflag == 0)
+			System.out.println("legal." + "\n");
+		else
 			System.out.println("errors found." + "\n");
-	 }
-	 
-	 
-// ---------- Main
-	public static void main (String[] args) throws IOException
-	 {
-		 Recognizer rec = new Recognizer();
-		 Scanner input = new Scanner(System.in);
-		 System.out.print("\n" + "enter an expression: ");
-		 inputString = input.nextLine();
-		 rec.start();
-	 }
-	
+	}
+
+	// ---------- Main
+	public static void main(String[] args) throws IOException {
+		Recognizer rec = new Recognizer();
+		Scanner input = new Scanner(System.in);
+		System.out.print("\n" + "enter an expression: ");
+		inputString = input.nextLine();
+		rec.start();
+	}
 }
