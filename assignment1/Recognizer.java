@@ -30,7 +30,8 @@
 //  letter ::= U | X | Y
 //  digit ::= 0 | 1 | 2 | 3 | 4 | 5
 
-// validTests: U=N,;  IN+NTU=N,;E; WN+123DU=N,;E; IN+UXY05TU=N,;SU=N,;E; PU01X234Y5=#V,N+N,N*NDU=N,;E;
+// validTests: U=N,; IN+NTU=N,;E; WN+123DU=N,;E; IN+UXY05TU=N,;SU=N,;E; U123,X123,Y123=N+123,N*F,123/-1,; PU01X234Y5=#V,N+N,N*NDU=N,;E;RN+123,F+UX23,;  
+// U=N,;IN+NTU=N,;E;WN+123DU=N,;E;IN+UXY05TU=N,;SU=N,;E;U123,X123,Y123=N+123,N*F,123/-1,;PU01X234Y5=#V,N+N,N*NDU=N,;E;RN+123,F+UX23,; 
 
 import java.io.*;
 import java.util.Scanner;
@@ -53,8 +54,9 @@ public class Recognizer {
 		System.out.println(T + " == " + token());
 		if (T == token()) {
 			advancePtr();
-		} else
+		} else {
 			error();
+		}
 	}
 
 	private void error() {
@@ -100,25 +102,26 @@ public class Recognizer {
 
 	// ---------- Grammar
 	private void piece() {
-		System.out.println("piece");
+		if (!isStmnt()) {
+			error();
+			return;
+		}
+
 		while (isStmnt()) {
 			stmnt();
 			match(';');
 		}
 		if (isLstStmnt()) {
-			System.out.println("is last statment");
 			lststmnt();
 			match(';');
 		}
 	}
 
 	private void block() {
-		System.out.println("block");
 		piece();
 	}
 
 	private void stmnt() {
-		System.out.println("stmnt");
 		if (isLetter())
 			assignst();
 		else if (token() == 'W')
@@ -132,14 +135,12 @@ public class Recognizer {
 	}
 
 	private void assignst() {
-		System.out.println("assignst");
 		varlist();
 		match('=');
 		explst();
 	}
 
 	private void whilst() {
-		System.out.println("whilst");
 		match('W');
 		expr();
 		match('D');
@@ -148,7 +149,6 @@ public class Recognizer {
 	}
 
 	private void ifst() {
-		System.out.println("ifst");
 		match('I');
 		expr();
 		match('T');
@@ -161,7 +161,6 @@ public class Recognizer {
 	}
 
 	private void forst() {
-		System.out.println("forst");
 		match('P');
 		varname();
 		match('=');
@@ -178,7 +177,6 @@ public class Recognizer {
 	}
 
 	private void lststmnt() {
-		System.out.println("lststmnt");
 		if (token() == 'K')
 			match('K');
 		else if (token() == 'R')
@@ -190,7 +188,6 @@ public class Recognizer {
 	}
 
 	private void varlist() {
-		System.out.println("varlist");
 		if (isLetter()) {
 			varname();
 			while (token() == ',') {
@@ -202,7 +199,6 @@ public class Recognizer {
 	}
 
 	private void explst() {
-		System.out.println("explst");
 		expr();
 		match(',');
 		if (isExpr())
@@ -213,7 +209,6 @@ public class Recognizer {
 	}
 
 	private void expr() {
-		System.out.println("expr");
 		if (isTerm()) {
 			term();
 			if (isBinop()) {
@@ -228,7 +223,6 @@ public class Recognizer {
 	}
 
 	private void term() {
-		System.out.println("term: " + token());
 		if (token() == 'N' || token() == 'F' || token() == 'V')
 			match(token());
 		else if (isDigit())
@@ -240,13 +234,11 @@ public class Recognizer {
 			expr();
 			match(')');
 		} else {
-			System.out.println("error in term");
 			error();
 		}
 	}
 
 	private void binop() {
-		System.out.println("binop");
 		if (isBinop())
 			match(token());
 		else
@@ -254,7 +246,6 @@ public class Recognizer {
 	}
 
 	private void unop() {
-		System.out.println("unop");
 		if (isUnop())
 			match(token());
 		else
@@ -262,7 +253,6 @@ public class Recognizer {
 	}
 
 	private void varname() {
-		System.out.println("varname");
 		if (isLetter())
 			do {
 				if (isDigit())
@@ -273,14 +263,12 @@ public class Recognizer {
 	}
 
 	private void num() {
-		System.out.println("num");
 		do
 			digit();
 		while (isDigit());
 	}
 
 	private void letter() {
-		System.out.println("letter");
 		if (isLetter())
 			match(token());
 		else
@@ -288,7 +276,6 @@ public class Recognizer {
 	}
 
 	private void digit() {
-		System.out.println("digit");
 		if (isDigit())
 			match(token());
 		else
